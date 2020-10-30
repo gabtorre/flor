@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from posts.serializers import UserSerializerWithToken
 
 from posts.models import Post
-from django.contrib.auth.models import User
+from authentication.models import CustomUser
 from posts.serializers import PostSerializer
 from posts.serializers import UserSerializer
 from rest_framework import generics
@@ -28,7 +28,7 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
     permission_classes = (permissions.AllowAny,)
@@ -41,7 +41,7 @@ class UserList(generics.ListAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
 @api_view(['GET'])
