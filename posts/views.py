@@ -15,9 +15,12 @@ from posts.permissions import IsOwnerOrReadOnly
 
 
 class PostList(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
+    # queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return self.request.user.posts.all()
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

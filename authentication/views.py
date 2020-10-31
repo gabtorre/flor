@@ -31,10 +31,7 @@ class UserAPI(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
-        
 
 class HelloWorldView(APIView):
     def get(self, request): 
-        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
-
- 
+        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)   
