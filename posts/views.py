@@ -20,15 +20,32 @@ class PostList(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return self.request.user.posts.all()
+        return Post.objects.filter(owner=self.request.user.id)
+        # return self.request.user.posts.all()
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def create(self, request, *args, **kwargs):
+        post_data = request.data
+
+        new_post = Post.objects.create(owner=CustomUser.objects.get(id=self.request.user.id), caption=post_data["caption"], image=post_data["image"])
+
+        new_post.save()
+
+        serializer = PostSerializer(new_post)
+
+        return Response(serializer.data)
+        
+    # def perform_create(self, serializer):
+    #     serializer.save(owner=self.request.user)
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        print(self.request.user)
+        queryset = Post.objects.filter(owner=self.request.user.id)
+    
+    
 
 class UserList(generics.ListAPIView):
     queryset = CustomUser.objects.all()

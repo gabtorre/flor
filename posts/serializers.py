@@ -4,13 +4,14 @@ from rest_framework_jwt.settings import api_settings
 from authentication.models import CustomUser
 
 class PostSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    # owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = Post
         fields = ['id', 'image', 'caption', 'owner']
+        depth = 1
 
-    def create(self, validated_data):
-        return Post.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     return Post.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.image = validated_data.get('image', instance.image)
@@ -19,7 +20,7 @@ class PostSerializer(serializers.ModelSerializer):
         return instance
 
 class UserSerializer(serializers.ModelSerializer):
-    posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
+    # posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
 
     class Meta:
         model = CustomUser
