@@ -3,4 +3,4 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    fav_color = models.CharField(blank=True, max_length=120)
+    avatar = models.CharField(blank=True, null=True, max_length=120)
