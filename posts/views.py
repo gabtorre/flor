@@ -3,25 +3,28 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from posts.serializers import UserSerializerWithToken
+# from posts.serializers import UserSerializerWithToken
 
 from posts.models import Post
 from authentication.models import CustomUser
 from posts.serializers import PostSerializer
-from posts.serializers import UserSerializer
+# from posts.serializers import UserSerializer
 from rest_framework import generics
 from rest_framework import permissions
 from posts.permissions import IsOwnerOrReadOnly
+from django.http import HttpResponse, JsonResponse
+
+from rest_framework.response import Response
 
 
 class PostList(generics.ListCreateAPIView):
-    # queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Post.objects.filter(owner=self.request.user.id)
-        # return self.request.user.posts.all()
+        posts = Post.objects.filter(owner=self.request.user.id)
+        print(posts)
+        return posts
 
     def create(self, request, *args, **kwargs):
         post_data = request.data
@@ -37,38 +40,47 @@ class PostList(generics.ListCreateAPIView):
     # def perform_create(self, serializer):
     #     serializer.save(owner=self.request.user)
 
+
+class AllPosts(generics.ListCreateAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        posts = Post.objects.all()
+        print(posts[0].owner.username)
+        return posts
+
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        print(self.request.user)
-        queryset = Post.objects.filter(owner=self.request.user.id)
-    
-    
+        
+        queryset = Post.objects.get(id=id)
+        print(queryset)
 
-class UserList(generics.ListAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
 
-    permission_classes = (permissions.AllowAny,)
+@api_view(['GET', 'PUT', 'DELETE'])   
+def post_show(request, post_id):
+    post = Post.objects.get(id=post_id)
 
-    def post(self, request, format=None):
-        serializer = UserSerializerWithToken(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
 
-class UserDetail(generics.RetrieveAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
+    elif request.method == 'DELETE':
+        print(post.owner.id, request.user.id)
+        if post.owner.id == request.user.id:
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return HttpResponse('Unauthorized', status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['GET'])
-def current_user(request):
-    """
-    Determine the current user by their token, and return their data
-    """
-    
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data)
+
+@api_view(['GET', 'PUT', 'DELETE'])   
+def user_post_show(request, user_id):
+    post = Post.objects.filter(owner=user_id)
+
+    if request.method == 'GET':
+        serializer = PostSerializer(post, many=True)
+        return Response(serializer.data)

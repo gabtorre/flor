@@ -5,6 +5,12 @@ from rest_framework.views import APIView
 
 from .serializers import MyTokenObtainPairSerializer, CustomUserSerializer 
 
+from authentication.models import CustomUser
+
+from rest_framework.decorators import api_view
+
+from django.http import HttpResponse, JsonResponse
+
 
 class ObtainTokenPairWithColorView(TokenObtainPairView): 
     serializer_class = MyTokenObtainPairSerializer 
@@ -30,8 +36,43 @@ class UserAPI(generics.RetrieveAPIView):
     serializer_class = CustomUserSerializer
 
     def get_object(self):
+        # user = CustomUser.objects.get(id=self.request.user.id)
+        # print(self.request.user_id)
+        # return CustomUser.objects.get(id=self.request.user.id)
         return self.request.user
 
-class HelloWorldView(APIView):
-    def get(self, request): 
-        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)   
+class UserList(generics.ListAPIView):
+    permission_classes = (permissions.AllowAny,)
+    
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+
+@api_view(['GET', 'PUT', 'DELETE'])   
+def user_show(request, user_id):
+    user = CustomUser.objects.get(id=user_id)
+    
+
+    if request.method == 'GET':
+        serializer = CustomUserSerializer(user)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        print(request.data)
+        serializer = CustomUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    elif request.method == 'DELETE':
+        
+        # user.delete()
+        # return Response(status=status.HTTP_204_NO_CONTENT)
+
+        print(user.id, request.user.id)
+        if user.id == request.user.id:
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return HttpResponse('Unauthorized', status=status.HTTP_401_UNAUTHORIZED)

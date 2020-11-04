@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('posts.urls')),
     path('token-auth/', obtain_jwt_token),
     path('api/', include('authentication.urls')),
+    path('follow/', include('followers.urls')),
 ]
 
 urlpatterns += [
