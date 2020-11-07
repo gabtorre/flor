@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from posts.models import Post
+from posts.models import Post, Comment
 # from rest_framework_jwt.settings import api_settings
 # from authentication.models import CustomUser
 
@@ -7,7 +7,7 @@ class PostSerializer(serializers.ModelSerializer):
     # owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = Post
-        fields = ['id', 'image', 'caption', 'owner', 'timestamp']
+        fields = ['id', 'image', 'caption', 'owner', 'timestamp', 'soundcloud', 'beatport', 'bandcamp']
         depth = 1
 
     # def create(self, validated_data):
@@ -18,6 +18,12 @@ class PostSerializer(serializers.ModelSerializer):
         instance.caption = validated_data.get('caption', instance.caption)
         instance.save()
         return instance
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['comment', 'user']
+        depth = 1
 
 # class UserSerializer(serializers.ModelSerializer):
 #     # posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
