@@ -1,61 +1,27 @@
 from rest_framework import serializers
 from posts.models import Post, Comment
-# from rest_framework_jwt.settings import api_settings
-# from authentication.models import CustomUser
+
 
 class PostSerializer(serializers.ModelSerializer):
-    # owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.CharField(source='owner.username', read_only=True)
+    owner_id = serializers.CharField(source='owner.id', read_only=True)
+    owner_avatar = serializers.CharField(source='owner.avatar', read_only=True)
+    
     class Meta:
         model = Post
-        fields = ['id', 'image', 'caption', 'owner', 'timestamp', 'soundcloud', 'beatport', 'bandcamp']
-        depth = 1
+        fields = ['id', 'image', 'caption', 'owner', 'owner_avatar', 'owner_id', 'timestamp', 'soundcloud', 'beatport', 'bandcamp']
 
-    # def create(self, validated_data):
-    #     return Post.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.image = validated_data.get('image', instance.image)
-        instance.caption = validated_data.get('caption', instance.caption)
-        instance.save()
-        return instance
 
 class CommentSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user', read_only=True)
+    id = serializers.CharField(source='user.id', read_only=True)
+
     class Meta:
         model = Comment
-        fields = ['comment', 'user']
-        depth = 1
+        fields = ['comment', 'username', 'id']
 
-# class UserSerializer(serializers.ModelSerializer):
-#     # posts = serializers.PrimaryKeyRelatedField(many=True, queryset=Post.objects.all())
-
-#     class Meta:
-#         model = CustomUser
-#         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'posts']
-
-
-# # https://medium.com/@dakota.lillie/django-react-jwt-authentication-5015ee00ef9a
-# class UserSerializerWithToken(serializers.ModelSerializer):
-
-#     token = serializers.SerializerMethodField()
-#     password = serializers.CharField(write_only=True)
-
-#     def get_token(self, obj):
-#         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-#         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-#         payload = jwt_payload_handler(obj)
-#         token = jwt_encode_handler(payload)
-#         return token
-
-#     def create(self, validated_data):
-#         password = validated_data.pop('password', None)
-#         instance = self.Meta.model(**validated_data)
-#         if password is not None:
-#             instance.set_password(password)
-#         instance.save()
-#         return instance
-
-#     class Meta:
-#         model = CustomUser
-#         fields = ('token', 'username', 'password')
-
+    def create(self, validated_data):
+        """
+        Create and return a new `Snippet` instance, given the validated data.
+        """
+        return Comment.objects.create(**validated_data)

@@ -12,8 +12,12 @@ class Post(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey('authentication.CustomUser', related_name='posts', on_delete=models.CASCADE, blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.caption}"
+
     class Meta:
         ordering = ['-timestamp'] 
+
 
 class Comment(models.Model):
     comment = models.CharField(max_length=200, blank=False, null=True)
@@ -26,4 +30,3 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-created_date']
-

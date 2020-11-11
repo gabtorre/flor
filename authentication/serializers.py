@@ -15,13 +15,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     email = serializers.EmailField( required=True ) 
     username = serializers.CharField() 
-    password = serializers.CharField(min_length=8, write_only=True) 
+    # password = serializers.CharField(min_length=8, write_only=True) 
     avatar = serializers.CharField()
     cover = serializers.CharField()
     
     class Meta: 
         model = CustomUser
-        fields = ['id', 'email', 'username', 'password', 'avatar', 'cover']
+        fields = ['id', 'email', 'username', 'avatar', 'cover']
         extra_kwargs = {'password': {'write_only': True}}
         
     def create(self, validated_data):
