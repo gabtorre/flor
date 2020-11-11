@@ -5,9 +5,8 @@ from posts import views
 
 urlpatterns = [
     path('posts/', views.PostList.as_view()),
-    path('posts/all', views.AllPosts.as_view()),
-    path('posts/<int:post_id>/', views.post_show),
-    path('posts/user/<int:user_id>/', views.user_post_show),
+    path('posts/<int:pk>/', views.PostDetail.as_view()),
+    path('posts/user/<int:pk>/', views.UserPosts.as_view()),
     path('posts/comments/<int:pk>/', views.PostComments.as_view()),
     path('posts/comments/<int:pk>/all/', views.PostComments.as_view()),
 ]

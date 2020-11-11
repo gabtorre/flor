@@ -1,13 +1,11 @@
-from django.http import HttpResponseRedirect
-from django.http import HttpResponse, JsonResponse, Http404
-
+from django.http import HttpResponse
+from django.http import Http404
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from authentication.models import CustomUser
 from posts.models import Post, Comment
 from posts.serializers import PostSerializer, CommentSerializer
@@ -18,71 +16,61 @@ from posts.permissions import IsOwnerOrReadOnly
 POST VIEWS 
 """
 
-class PostList(generics.ListCreateAPIView):
-    serializer_class = PostSerializer
+class PostList(APIView):
+    """
+    List all posts, or create a new post.
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get_queryset(self):
-        posts = Post.objects.filter(owner=self.request.user.id)
-        print(posts)
-        return posts
-
-    def create(self, request, *args, **kwargs):
-        post_data = request.data
-
-        print(request.data)
-
-        new_post = Post.objects.create(owner=CustomUser.objects.get(id=self.request.user.id), caption=post_data["caption"], soundcloud=post_data["soundcloud"], beatport=post_data["beatport"], bandcamp=post_data["bandcamp"], image=post_data["image"])
-
-        new_post.save()
-
-        serializer = PostSerializer(new_post)
-
+    def get(self, request, format=None):
+        posts = Post.objects.all()
+        serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
 
-class AllPosts(generics.ListCreateAPIView):
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def post(self, request, format=None):
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=CustomUser.objects.get(id=self.request.user.id))
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        posts = Post.objects.all()
-        print(posts[0].owner.username)
-        return posts
 
-class PostDetail(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = PostSerializer
+class PostDetail(APIView):
+    """
+    Retrieve, update or delete a post instance.
+    """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
-    def get_queryset(self):
-        
-        queryset = Post.objects.get(id=id)
-        print(queryset)
+    def get_object(self, pk):
+        try:
+            return Post.objects.get(id=pk)
+        except Post.DoesNotExist:
+            raise Http404
 
-
-@api_view(['GET', 'PUT', 'DELETE'])   
-def post_show(request, post_id):
-    post = Post.objects.get(id=post_id)
-
-    if request.method == 'GET':
+    def get(self, request, pk, format=None):
+        post = self.get_object(pk)
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
-    elif request.method == 'DELETE':
-        print(post.owner.id, request.user.id)
+    def delete(self, request, pk, format=None):
+        post = self.get_object(pk)
         if post.owner.id == request.user.id:
             post.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return HttpResponse('Unauthorized', status=status.HTTP_401_UNAUTHORIZED)
 
-
-@api_view(['GET', 'PUT', 'DELETE'])   
-def user_post_show(request, user_id):
-    post = Post.objects.filter(owner=user_id)
-
-    if request.method == 'GET':
-        serializer = PostSerializer(post, many=True)
+        
+class UserPosts(APIView):
+    """
+    Retrieve a user's posts
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+ 
+    def get(self, request, pk, format=None):
+        posts = Post.objects.filter(owner=pk)
+        serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
 
@@ -94,6 +82,8 @@ class PostComments(APIView):
     """
     Retrieve comments on a post, and add comment to a post.
     """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
     def get(self, request, pk, format=None):
         comment = Comment.objects.filter(post=pk)
         serializer = CommentSerializer(comment, many=True)
