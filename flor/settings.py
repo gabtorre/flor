@@ -14,6 +14,8 @@ from pathlib import Path
 from datetime import timedelta
 import os
 
+import django_heroku
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -203,3 +205,6 @@ DEBUG_PROPAGATE_EXCEPTIONS = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED', False)
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
