@@ -23,3 +23,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+    def update(self, instance, validated_data):
+        """
+        Update and return an existing `User` instance, given the validated data.
+        """
+        instance.email = validated_data.get('email', instance.email)
+        instance.username = validated_data.get('username', instance.username)
+        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.cover = validated_data.get('cover', instance.cover)
+        instance.save()
+        return instance
