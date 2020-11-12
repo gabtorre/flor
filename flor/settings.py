@@ -29,7 +29,7 @@ SECRET_KEY = 'k3^g@#3f6pz!w!-@8q5^i3)=-%bpajb*p@e03*h(=0jb*@v-_h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = (".herokuapp.com",)
+ALLOWED_HOSTS = ("pulse-react.herokuapp.com",)
 
 
 # Application definition
