@@ -29,7 +29,7 @@ SECRET_KEY = 'k3^g@#3f6pz!w!-@8q5^i3)=-%bpajb*p@e03*h(=0jb*@v-_h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = (".herokuapp.com",)
 
 
 # Application definition
@@ -205,6 +205,7 @@ DEBUG_PROPAGATE_EXCEPTIONS = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED', False)
+
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
