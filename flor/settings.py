@@ -159,3 +159,7 @@ CORS_ORIGIN_WHITELIST = (
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'flor.utils.my_jwt_response_handler'
 }
+
+# Configure Django App for Heroku.
+import django_heroku
+django_heroku.settings(locals())
