@@ -154,7 +154,7 @@ SIMPLE_JWT = {
 }
 
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
+    'https://pulse-react.herokuapp.com',
 )
 
 JWT_AUTH = {
